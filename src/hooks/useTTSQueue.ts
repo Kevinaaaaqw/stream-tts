@@ -9,6 +9,7 @@ interface TTSItem {
 export function useTTSQueue() {
   const [queue, setQueue] = useState<TTSItem[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentItem, setCurrentItem] = useState<TTSItem | null>(null);
   const isProcessing = useRef(false);
 
   const enqueue = useCallback((author: string, text: string) => {
@@ -32,6 +33,7 @@ export function useTTSQueue() {
       const [next, ...rest] = prev;
       isProcessing.current = true;
       setIsSpeaking(true);
+      setCurrentItem(next);
 
       const utter = new SpeechSynthesisUtterance(next.text);
       utter.lang = "zh-TW";
@@ -49,11 +51,13 @@ export function useTTSQueue() {
         clearInterval(resumeInterval);
         isProcessing.current = false;
         setIsSpeaking(false);
+        setCurrentItem(null);
       };
 
       utter.onerror = () => {
         isProcessing.current = false;
         setIsSpeaking(false);
+        setCurrentItem(null);
       };
 
       window.speechSynthesis.speak(utter);
@@ -79,6 +83,7 @@ export function useTTSQueue() {
     window.speechSynthesis.cancel();
     isProcessing.current = false;
     setIsSpeaking(false);
+    setCurrentItem(null);
   }, []);
 
   const clearQueue = useCallback(() => {
@@ -86,7 +91,8 @@ export function useTTSQueue() {
     isProcessing.current = false;
     setQueue([]);
     setIsSpeaking(false);
+    setCurrentItem(null);
   }, []);
 
-  return { queue, isSpeaking, enqueue, skip, clearQueue };
+  return { queue, isSpeaking, currentItem, enqueue, skip, clearQueue };
 }

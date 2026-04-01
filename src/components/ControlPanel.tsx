@@ -103,8 +103,7 @@ export function ControlPanel({
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    width: "100vw",
-    height: "100vh",
+    flex: 1,
     background: "#0d0f1a",
     display: "flex",
     flexDirection: "column",
