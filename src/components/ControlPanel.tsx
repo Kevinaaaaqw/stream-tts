@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 interface ControlPanelProps {
   onStart: (apiKey: string, videoId: string) => void;
@@ -28,6 +28,19 @@ export function ControlPanel({
     localStorage.setItem("stream_tts_api_key", apiKey);
     onStart(apiKey, videoId);
   };
+
+  const overlayUrl =
+    apiKey && videoId
+      ? `${window.location.origin}/overlay?apiKey=${encodeURIComponent(apiKey)}&videoId=${encodeURIComponent(videoId)}`
+      : "";
+
+  const [copied, setCopied] = useState(false);
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(overlayUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [overlayUrl]);
 
   const isConnected = status === "polling";
 
@@ -97,6 +110,19 @@ export function ControlPanel({
           清空
         </button>
       </div>
+
+      {/* OBS Overlay URL */}
+      {overlayUrl && (
+        <div style={styles.overlayBox}>
+          <div style={styles.overlayLabel}>OBS Browser Source URL</div>
+          <div style={styles.overlayRow}>
+            <span style={styles.overlayUrl}>{overlayUrl}</span>
+            <button style={styles.copyBtn} onClick={handleCopy}>
+              {copied ? "已複製" : "複製"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -208,5 +234,45 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "10px 20px",
     fontSize: "14px",
     cursor: "pointer",
+  },
+  overlayBox: {
+    width: "360px",
+    background: "rgba(0,229,255,0.05)",
+    border: "1px solid rgba(0,229,255,0.2)",
+    borderRadius: "8px",
+    padding: "12px 14px",
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "8px",
+    marginTop: "8px",
+  },
+  overlayLabel: {
+    fontSize: "11px",
+    color: "rgba(0,229,255,0.6)",
+    letterSpacing: "0.05em",
+    textTransform: "uppercase" as const,
+  },
+  overlayRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  },
+  overlayUrl: {
+    flex: 1,
+    fontSize: "11px",
+    color: "rgba(200,210,255,0.7)",
+    wordBreak: "break-all" as const,
+    lineHeight: "1.4",
+  },
+  copyBtn: {
+    flexShrink: 0,
+    background: "rgba(0,229,255,0.15)",
+    border: "1px solid rgba(0,229,255,0.4)",
+    borderRadius: "6px",
+    color: "#00e5ff",
+    fontSize: "12px",
+    padding: "4px 12px",
+    cursor: "pointer",
+    whiteSpace: "nowrap" as const,
   },
 };
