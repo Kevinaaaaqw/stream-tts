@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { Copy, Check } from "lucide-react";
 
 interface ControlPanelProps {
   onStart: (apiKey: string, videoId: string) => void;
@@ -44,15 +45,20 @@ export function ControlPanel({
 
   const isConnected = status === "polling";
 
+  const dotClass =
+    status === "polling" ? "bg-success" :
+    status === "error"   ? "bg-danger"  : "bg-[#555]";
+
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Stream TTS</h1>
+    <div className="flex-1 flex flex-col items-center justify-center gap-4 font-sans text-surface">
+
+      <h1 className="text-[28px] font-bold text-primary mb-2">Stream TTS</h1>
 
       {/* API Key */}
-      <div style={styles.field}>
-        <label style={styles.label}>API Key</label>
+      <div className="flex flex-col gap-1.5 w-90">
+        <label className="text-[13px] text-muted/60">API Key</label>
         <input
-          style={styles.input}
+          className="bg-white/5 border border-primary/25 rounded-lg px-3 py-2.5 text-surface text-sm outline-none disabled:opacity-50"
           type="password"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
@@ -62,10 +68,10 @@ export function ControlPanel({
       </div>
 
       {/* Video ID */}
-      <div style={styles.field}>
-        <label style={styles.label}>Video ID</label>
+      <div className="flex flex-col gap-1.5 w-90">
+        <label className="text-[13px] text-muted/60">Video ID</label>
         <input
-          style={styles.input}
+          className="bg-white/5 border border-primary/25 rounded-lg px-3 py-2.5 text-surface text-sm outline-none disabled:opacity-50"
           type="text"
           value={videoId}
           onChange={(e) => setVideoId(e.target.value)}
@@ -75,50 +81,65 @@ export function ControlPanel({
       </div>
 
       {/* 狀態 */}
-      <div style={styles.statusRow}>
-        <span
-          style={{
-            ...styles.dot,
-            background: status === "polling" ? "#00e676" : status === "error" ? "#ff4081" : "#555",
-          }}
-        />
-        <span style={styles.statusText}>
+      <div className="flex items-center gap-2 mt-1">
+        <span className={`w-2 h-2 rounded-full ${dotClass}`} />
+        <span className="text-[13px] text-muted/60">
           {status === "polling" ? "監聽中" : status === "error" ? "錯誤" : "未連線"}
         </span>
-        {isSpeaking && <span style={styles.speakingBadge}>朗讀中</span>}
-        {queueLength > 0 && <span style={styles.queueBadge}>佇列 {queueLength} 則</span>}
+        {isSpeaking && (
+          <span className="text-[11px] bg-primary/15 text-primary border border-primary/30 rounded px-2 py-0.5">朗讀中</span>
+        )}
+        {queueLength > 0 && (
+          <span className="text-[11px] bg-white/8 text-muted/60 rounded px-2 py-0.5">佇列 {queueLength} 則</span>
+        )}
       </div>
 
       {/* 錯誤訊息 */}
-      {error && <div style={styles.error}>{error}</div>}
+      {error && (
+        <div className="bg-danger/12 border border-danger/30 rounded-lg px-3.5 py-2.5 text-[13px] text-[#ff8aaa] w-90">
+          {error}
+        </div>
+      )}
 
       {/* 按鈕 */}
-      <div style={styles.btnRow}>
+      <div className="flex gap-2 mt-1">
         {!isConnected ? (
-          <button style={styles.btnPrimary} onClick={handleStart}>
+          <button className="bg-primary/15 border border-primary rounded-lg text-primary px-6 py-2.5 text-sm" onClick={handleStart}>
             開始監聽
           </button>
         ) : (
-          <button style={styles.btnDanger} onClick={onStop}>
+          <button className="bg-danger/15 border border-danger rounded-lg text-danger px-6 py-2.5 text-sm" onClick={onStop}>
             停止
           </button>
         )}
-        <button style={styles.btnSecondary} onClick={onSkip} disabled={!isSpeaking}>
+        <button
+          className="bg-white/5 border border-primary/25 rounded-lg text-muted/60 px-5 py-2.5 text-sm disabled:opacity-40"
+          onClick={onSkip}
+          disabled={!isSpeaking}
+        >
           跳過
         </button>
-        <button style={styles.btnSecondary} onClick={onClear} disabled={queueLength === 0 && !isSpeaking}>
+        <button
+          className="bg-white/5 border border-primary/25 rounded-lg text-muted/60 px-5 py-2.5 text-sm disabled:opacity-40"
+          onClick={onClear}
+          disabled={queueLength === 0 && !isSpeaking}
+        >
           清空
         </button>
       </div>
 
       {/* OBS Overlay URL */}
       {overlayUrl && (
-        <div style={styles.overlayBox}>
-          <div style={styles.overlayLabel}>OBS Browser Source URL</div>
-          <div style={styles.overlayRow}>
-            <span style={styles.overlayUrl}>{overlayUrl}</span>
-            <button style={styles.copyBtn} onClick={handleCopy}>
-              {copied ? "已複製" : "複製"}
+        <div className="w-90 bg-primary/5 border border-primary/20 rounded-lg px-3.5 py-3 flex flex-col gap-2 mt-2">
+          <div className="text-[11px] text-primary/60 tracking-[0.05em] uppercase">OBS Browser Source URL</div>
+          <div className="flex items-center gap-2">
+            <span className="flex-1 text-[11px] text-muted/70 break-all leading-snug">{overlayUrl}</span>
+            <button
+              className="shrink-0 bg-primary/15 border border-primary/40 rounded-md px-3 py-1"
+              onClick={handleCopy}
+              title={copied ? "已複製" : "複製"}
+            >
+              {copied ? <Check size={14} className="text-primary" /> : <Copy size={14} className="text-primary" />}
             </button>
           </div>
         </div>
@@ -126,153 +147,3 @@ export function ControlPanel({
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    flex: 1,
-    background: "#0d0f1a",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "16px",
-    fontFamily: "sans-serif",
-    color: "#e8f0ff",
-  },
-  title: {
-    fontSize: "28px",
-    fontWeight: 700,
-    color: "#00e5ff",
-    marginBottom: "8px",
-  },
-  field: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-    width: "360px",
-  },
-  label: {
-    fontSize: "13px",
-    color: "rgba(200,210,255,0.6)",
-  },
-  input: {
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(0,229,255,0.25)",
-    borderRadius: "8px",
-    padding: "10px 12px",
-    color: "#e8f0ff",
-    fontSize: "14px",
-    outline: "none",
-  },
-  statusRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    marginTop: "4px",
-  },
-  dot: {
-    width: "8px",
-    height: "8px",
-    borderRadius: "50%",
-  },
-  statusText: {
-    fontSize: "13px",
-    color: "rgba(200,210,255,0.6)",
-  },
-  speakingBadge: {
-    fontSize: "11px",
-    background: "rgba(0,229,255,0.15)",
-    color: "#00e5ff",
-    border: "1px solid rgba(0,229,255,0.3)",
-    borderRadius: "4px",
-    padding: "2px 8px",
-  },
-  queueBadge: {
-    fontSize: "11px",
-    background: "rgba(255,255,255,0.08)",
-    color: "rgba(200,210,255,0.6)",
-    borderRadius: "4px",
-    padding: "2px 8px",
-  },
-  error: {
-    background: "rgba(255,64,129,0.12)",
-    border: "1px solid rgba(255,64,129,0.3)",
-    borderRadius: "8px",
-    padding: "10px 14px",
-    fontSize: "13px",
-    color: "#ff8aaa",
-    width: "360px",
-  },
-  btnRow: {
-    display: "flex",
-    gap: "8px",
-    marginTop: "4px",
-  },
-  btnPrimary: {
-    background: "rgba(0,229,255,0.15)",
-    border: "1px solid #00e5ff",
-    borderRadius: "8px",
-    color: "#00e5ff",
-    padding: "10px 24px",
-    fontSize: "14px",
-    cursor: "pointer",
-  },
-  btnDanger: {
-    background: "rgba(255,64,129,0.15)",
-    border: "1px solid #ff4081",
-    borderRadius: "8px",
-    color: "#ff4081",
-    padding: "10px 24px",
-    fontSize: "14px",
-    cursor: "pointer",
-  },
-  btnSecondary: {
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(0,229,255,0.25)",
-    borderRadius: "8px",
-    color: "rgba(200,210,255,0.6)",
-    padding: "10px 20px",
-    fontSize: "14px",
-    cursor: "pointer",
-  },
-  overlayBox: {
-    width: "360px",
-    background: "rgba(0,229,255,0.05)",
-    border: "1px solid rgba(0,229,255,0.2)",
-    borderRadius: "8px",
-    padding: "12px 14px",
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "8px",
-    marginTop: "8px",
-  },
-  overlayLabel: {
-    fontSize: "11px",
-    color: "rgba(0,229,255,0.6)",
-    letterSpacing: "0.05em",
-    textTransform: "uppercase" as const,
-  },
-  overlayRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-  },
-  overlayUrl: {
-    flex: 1,
-    fontSize: "11px",
-    color: "rgba(200,210,255,0.7)",
-    wordBreak: "break-all" as const,
-    lineHeight: "1.4",
-  },
-  copyBtn: {
-    flexShrink: 0,
-    background: "rgba(0,229,255,0.15)",
-    border: "1px solid rgba(0,229,255,0.4)",
-    borderRadius: "6px",
-    color: "#00e5ff",
-    fontSize: "12px",
-    padding: "4px 12px",
-    cursor: "pointer",
-    whiteSpace: "nowrap" as const,
-  },
-};

@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { ControlPanel } from "./components/ControlPanel";
+import { Navbar } from "./components/Navbar";
 import { useTTSQueue } from "./hooks/useTTSQueue";
 import { useYouTubeChat } from "./hooks/useYouTubeChat";
 
@@ -38,169 +39,61 @@ function App() {
   const hasContent = currentItem !== null || queue.length > 0;
 
   return (
-    <div style={styles.root}>
-      <ControlPanel
-        onStart={handleStart}
-        onStop={handleStop}
-        onSkip={skip}
-        onClear={clearQueue}
-        status={status}
-        error={error}
-        isSpeaking={isSpeaking}
-        queueLength={queue.length}
-      />
+    <div className="flex flex-col w-screen h-screen bg-base">
+      <Navbar />
+      <div className="flex flex-1 overflow-hidden">
+        <ControlPanel
+          onStart={handleStart}
+          onStop={handleStop}
+          onSkip={skip}
+          onClear={clearQueue}
+          status={status}
+          error={error}
+          isSpeaking={isSpeaking}
+          queueLength={queue.length}
+        />
 
-      <div style={styles.queuePanel}>
-        <div style={styles.queueHeader}>
-          <span style={styles.queueTitle}>待播清單</span>
-          {hasContent && (
-            <button style={styles.clearBtn} onClick={clearQueue}>清空</button>
-          )}
-        </div>
+        {/* 待播清單 */}
+        <div className="w-80 shrink-0 border-l border-primary/10 flex flex-col py-6 px-4 gap-3 overflow-y-auto">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-muted/50 tracking-[0.05em] uppercase">待播清單</span>
+            {hasContent && (
+              <button className="border border-danger/40 rounded text-danger/80 text-xs px-2.5 py-0.5" onClick={clearQueue}>
+                清空
+              </button>
+            )}
+          </div>
 
-        <div style={styles.queueList}>
-          {!hasContent && (
-            <div style={styles.empty}>目前沒有待播訊息</div>
-          )}
+          <div className="flex flex-col gap-2">
+            {!hasContent && (
+              <div className="text-[13px] text-muted/25 text-center mt-8">目前沒有待播訊息</div>
+            )}
 
-          {currentItem && (
-            <div style={styles.currentItem}>
-              <div style={styles.itemHeader}>
-                <span style={styles.nowBadge}>朗讀中</span>
-                <span style={styles.itemAuthor}>{currentItem.author}</span>
-                <button style={styles.skipBtn} onClick={skip}>跳過</button>
+            {currentItem && (
+              <div className="bg-primary/7 border border-primary/30 rounded-lg px-3 py-2.5 flex flex-col gap-1.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] bg-primary/20 text-primary border border-primary/40 rounded px-1.5 py-px shrink-0">朗讀中</span>
+                  <span className="text-xs text-muted/60 flex-1 truncate">{currentItem.author}</span>
+                  <button className="border border-primary/30 rounded text-primary/70 text-[11px] px-2 py-0.5 shrink-0" onClick={skip}>跳過</button>
+                </div>
+                <div className="text-[13px] text-surface leading-snug break-all">{currentItem.text}</div>
               </div>
-              <div style={styles.itemText}>{currentItem.text}</div>
-            </div>
-          )}
+            )}
 
-          {queue.map((item, index) => (
-            <div key={item.id} style={styles.queueItem}>
-              <div style={styles.itemHeader}>
-                <span style={styles.itemIndex}>{index + 1}</span>
-                <span style={styles.itemAuthor}>{item.author}</span>
+            {queue.map((item, index) => (
+              <div key={item.id} className="bg-white/3 border border-white/7 rounded-lg px-3 py-2.5 flex flex-col gap-1.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] text-muted/30 min-w-4">{index + 1}</span>
+                  <span className="text-xs text-muted/60 flex-1 truncate">{item.author}</span>
+                </div>
+                <div className="text-[13px] text-surface leading-snug break-all">{item.text}</div>
               </div>
-              <div style={styles.itemText}>{item.text}</div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  root: {
-    display: "flex",
-    flexDirection: "row",
-    width: "100vw",
-    height: "100vh",
-    background: "#0d0f1a",
-    alignItems: "stretch",
-  },
-  queuePanel: {
-    width: "320px",
-    flexShrink: 0,
-    borderLeft: "1px solid rgba(0,229,255,0.1)",
-    display: "flex",
-    flexDirection: "column",
-    padding: "24px 16px",
-    gap: "12px",
-    overflowY: "auto",
-  },
-  queueHeader: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  queueTitle: {
-    fontSize: "14px",
-    fontWeight: 600,
-    color: "rgba(200,210,255,0.5)",
-    letterSpacing: "0.05em",
-    textTransform: "uppercase" as const,
-  },
-  clearBtn: {
-    background: "transparent",
-    border: "1px solid rgba(255,64,129,0.4)",
-    borderRadius: "4px",
-    color: "rgba(255,64,129,0.8)",
-    fontSize: "12px",
-    padding: "3px 10px",
-    cursor: "pointer",
-  },
-  queueList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-  },
-  empty: {
-    fontSize: "13px",
-    color: "rgba(200,210,255,0.25)",
-    textAlign: "center" as const,
-    marginTop: "32px",
-  },
-  currentItem: {
-    background: "rgba(0,229,255,0.07)",
-    border: "1px solid rgba(0,229,255,0.3)",
-    borderRadius: "8px",
-    padding: "10px 12px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-  },
-  queueItem: {
-    background: "rgba(255,255,255,0.03)",
-    border: "1px solid rgba(255,255,255,0.07)",
-    borderRadius: "8px",
-    padding: "10px 12px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-  },
-  itemHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-  },
-  nowBadge: {
-    fontSize: "10px",
-    background: "rgba(0,229,255,0.2)",
-    color: "#00e5ff",
-    border: "1px solid rgba(0,229,255,0.4)",
-    borderRadius: "4px",
-    padding: "1px 6px",
-    flexShrink: 0,
-  },
-  itemIndex: {
-    fontSize: "11px",
-    color: "rgba(200,210,255,0.3)",
-    minWidth: "16px",
-  },
-  itemAuthor: {
-    fontSize: "12px",
-    color: "rgba(200,210,255,0.6)",
-    flex: 1,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap" as const,
-  },
-  skipBtn: {
-    background: "transparent",
-    border: "1px solid rgba(0,229,255,0.3)",
-    borderRadius: "4px",
-    color: "rgba(0,229,255,0.7)",
-    fontSize: "11px",
-    padding: "2px 8px",
-    cursor: "pointer",
-    flexShrink: 0,
-  },
-  itemText: {
-    fontSize: "13px",
-    color: "#e8f0ff",
-    lineHeight: "1.4",
-    wordBreak: "break-all" as const,
-  },
-};
 
 export default App;

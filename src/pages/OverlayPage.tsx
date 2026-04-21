@@ -24,85 +24,39 @@ export function OverlayPage() {
 
   if (!apiKey || !videoId) {
     return (
-      <div style={styles.paramError}>
+      <div className="flex items-center justify-center w-screen h-screen bg-base text-[#ff8aaa] text-base font-sans">
         缺少 apiKey 或 videoId 參數
       </div>
     );
   }
 
   return (
-    <div style={styles.root}>
-      {error && <div style={styles.errorBadge}>{error}</div>}
+    <div
+      className="w-screen h-screen bg-transparent flex flex-col justify-end items-start px-8 pb-10 box-border pointer-events-none"
+      style={{ fontFamily: "'Noto Sans TC', 'Microsoft JhengHei', sans-serif" }}
+    >
+      {error && (
+        <div className="absolute top-4 left-4 bg-danger/85 text-white text-[13px] px-3 py-1.5 rounded-md">
+          {error}
+        </div>
+      )}
 
       {currentItem && (
-        <div style={styles.messageBox}>
-          <span style={styles.author}>{currentItem.author}</span>
-          <span style={styles.text}>{currentItem.text}</span>
+        <div className="flex flex-col gap-1.5 bg-black/65 border border-primary/50 rounded-xl px-5 py-3.5 max-w-[600px] backdrop-blur-sm shadow-[0_0_20px_rgba(0,229,255,0.15)]">
+          <span
+            className="text-[15px] font-bold text-primary"
+            style={{ textShadow: "0 0 8px rgba(0,229,255,0.6)" }}
+          >
+            {currentItem.author}
+          </span>
+          <span
+            className="text-xl font-medium text-white leading-relaxed break-all"
+            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}
+          >
+            {currentItem.text}
+          </span>
         </div>
       )}
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  root: {
-    width: "100vw",
-    height: "100vh",
-    background: "transparent",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "flex-end",
-    alignItems: "flex-start",
-    padding: "0 32px 40px",
-    boxSizing: "border-box",
-    fontFamily: "'Noto Sans TC', 'Microsoft JhengHei', sans-serif",
-    pointerEvents: "none",
-  },
-  messageBox: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-    background: "rgba(0, 0, 0, 0.65)",
-    border: "1px solid rgba(0,229,255,0.5)",
-    borderRadius: "12px",
-    padding: "14px 20px",
-    maxWidth: "600px",
-    backdropFilter: "blur(4px)",
-    boxShadow: "0 0 20px rgba(0,229,255,0.15)",
-  },
-  author: {
-    fontSize: "15px",
-    fontWeight: 700,
-    color: "#00e5ff",
-    textShadow: "0 0 8px rgba(0,229,255,0.6)",
-  },
-  text: {
-    fontSize: "20px",
-    fontWeight: 500,
-    color: "#ffffff",
-    lineHeight: "1.5",
-    textShadow: "0 1px 4px rgba(0,0,0,0.8)",
-    wordBreak: "break-all",
-  },
-  errorBadge: {
-    position: "absolute" as const,
-    top: "16px",
-    left: "16px",
-    background: "rgba(255,64,129,0.85)",
-    color: "#fff",
-    fontSize: "13px",
-    padding: "6px 12px",
-    borderRadius: "6px",
-  },
-  paramError: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100vw",
-    height: "100vh",
-    background: "#0d0f1a",
-    color: "#ff8aaa",
-    fontSize: "16px",
-    fontFamily: "sans-serif",
-  },
-};
