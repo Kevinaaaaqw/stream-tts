@@ -76,7 +76,7 @@ export function useYouTubeChat({
           isFirstPoll.current = false;
         }
 
-        const interval = Math.max(data.pollingIntervalMillis || 5000, 3000);
+        const interval = Math.max(data.pollingIntervalMillis || 22000, 22000);
         if (isActive.current) {
           timerRef.current = setTimeout(() => poll(liveChatId), interval);
         }
